@@ -18,25 +18,30 @@ void Quit(char *error)
 {
 	memptr screen = NULL;
 
-	if (!error || !*error) {
+	if (!error || !*error)
+	{
 		CA_CacheGrChunk(ORDERSCREEN);
 		screen = grsegs[ORDERSCREEN];
 		WriteConfig();
-	} else if (error) {
+	}
+	else if (error)
+	{
 		CA_CacheGrChunk(ERRORSCREEN);
 		screen = grsegs[ERRORSCREEN];
 	}
-	
+
 	ShutdownId();
-	
-	if (screen) {
+
+	if (screen)
+	{
 		/* printf("spiffy ansi screen goes here..\n"); */
 	}
-	
-	if (error && *error) {
+
+	if (error && *error)
+	{
 		fprintf(stderr, "Quit: %s\n", error);
 		exit(EXIT_FAILURE);
- 	}
+	}
 	exit(EXIT_SUCCESS);
 }
 
@@ -58,8 +63,8 @@ void VW_UpdateScreen()
 
 void VL_Startup()
 {
-	if (gfxbuf == NULL) 
-		gfxbuf = malloc(320 * 200 * 1);		
+	if (gfxbuf == NULL)
+		gfxbuf = malloc(320 * 200 * 1);
 }
 
 /*
@@ -72,7 +77,8 @@ void VL_Startup()
 
 void VL_Shutdown()
 {
-	if (gfxbuf != NULL) {
+	if (gfxbuf != NULL)
+	{
 		free(gfxbuf);
 		gfxbuf = NULL;
 	}
@@ -110,8 +116,8 @@ void INL_Update()
 
 int main(int argc, char *argv[])
 {
-	vwidth = 32220;
-	vheight = 2020;
-	
+	vwidth = 320;
+	vheight = 200;
+
 	return WolfMain(argc, argv);
 }

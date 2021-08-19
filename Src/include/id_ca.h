@@ -3,10 +3,10 @@
 
 /* ======================================================================== */
 
-#define NUMMAPS		60
-#define MAPPLANES	2
+#define NUMMAPS 60
+#define MAPPLANES 2
 
-typedef	struct
+typedef struct
 {
 	int planestart[3];
 	int planelength[3];
@@ -16,12 +16,12 @@ typedef	struct
 
 /* ======================================================================== */
 
-extern	int	mapon;
+extern int mapon;
 
-extern	word	*mapsegs[MAPPLANES];
-extern	maptype	*mapheaderseg[NUMMAPS];
-extern	byte	*audiosegs[NUMSNDCHUNKS];
-extern	byte	*grsegs[NUMCHUNKS];
+extern word *mapsegs[MAPPLANES];
+extern maptype *mapheaderseg[NUMMAPS];
+extern byte *audiosegs[NUMSNDCHUNKS];
+extern byte *grsegs[NUMCHUNKS];
 
 extern char extension[5];
 
@@ -55,11 +55,12 @@ void MM_SetPurge(memptr *baseptr, int purge);
 void MM_SetLock(memptr *baseptr, boolean locked);
 void MM_SortMem();
 
-#define PMPageSize	4096
+#define PMPageSize 4096
 
-typedef	struct {
-	int offset;	/* Offset of chunk into file */
-	int length;	/* Length of the chunk */
+typedef struct
+{
+	int offset; /* Offset of chunk into file */
+	int length; /* Length of the chunk */
 	memptr addr;
 } PageListStruct;
 
@@ -67,8 +68,8 @@ extern int ChunksInFile, PMSpriteStart, PMSoundStart;
 
 extern PageListStruct *PMPages;
 
-#define	PM_GetSoundPage(v)	PM_GetPage(PMSoundStart + (v))
-#define	PM_GetSpritePage(v)	PM_GetPage(PMSpriteStart + (v))
+#define PM_GetSoundPage(v) PM_GetPage(PMSoundStart + (v))
+#define PM_GetSpritePage(v) PM_GetPage(PMSpriteStart + (v))
 memptr PM_GetPage(int pagenum);
 void PM_FreePage(int pagenum);
 

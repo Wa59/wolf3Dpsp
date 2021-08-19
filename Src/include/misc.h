@@ -46,7 +46,6 @@ extern int16_t ReadInt16(int fp);
 extern int32_t ReadInt32(int fp);
 extern int ReadBytes(int fp, byte *d, int len);
 
-
 static __inline__ uint16_t SwapInt16(uint16_t i)
 {
 	return ((uint16_t)i >> 8) | ((uint16_t)i << 8);
@@ -54,10 +53,10 @@ static __inline__ uint16_t SwapInt16(uint16_t i)
 
 static __inline__ uint32_t SwapInt32(uint32_t i)
 {
-	return	((uint32_t)(i & 0xFF000000) >> 24) |
-		((uint32_t)(i & 0x00FF0000) >>  8) |
-		((uint32_t)(i & 0x0000FF00) <<  8) |
-		((uint32_t)(i & 0x000000FF) << 24);
+	return ((uint32_t)(i & 0xFF000000) >> 24) |
+		   ((uint32_t)(i & 0x00FF0000) >> 8) |
+		   ((uint32_t)(i & 0x0000FF00) << 8) |
+		   ((uint32_t)(i & 0x000000FF) << 24);
 }
 
 #endif

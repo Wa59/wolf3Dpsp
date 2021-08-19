@@ -14,7 +14,11 @@
 #ifdef __cplusplus
 typedef bool boolean;
 #else
-typedef enum { false, true } boolean;
+typedef enum
+{
+	false,
+	true
+} boolean;
 #endif
 
 #include "version.h"
@@ -45,20 +49,22 @@ typedef enum { false, true } boolean;
 
 /* ---------------- */
 
-typedef uint8_t		byte;
-typedef uint16_t	word;
-typedef uint32_t	longword;
-typedef uint32_t	dword;
+typedef uint8_t byte;
+typedef uint16_t word;
+typedef uint32_t longword;
+typedef uint32_t dword;
 
 typedef long fixed;
 
-typedef void * memptr;
+typedef void *memptr;
 
-typedef	struct {
+typedef struct
+{
 	int x, y;
 } Point;
 
-typedef	struct {
+typedef struct
+{
 	Point ul, lr;
 } Rect;
 
@@ -76,17 +82,17 @@ extern const byte gamepal[];
 int MS_CheckParm(char *string);
 void Quit(char *error);
 
-#define TickBase	70	/* 70Hz per tick */
+#define TickBase 70 /* 70Hz per tick */
 
 #undef PI
-#define PI		3.1415926535897932384626433832795028841971693993751058209749445920
+#define PI 3.1415926535897932384626433832795028841971693993751058209749445920
 
-#define	MAXTICS		10
-#define DEMOTICS	4
+#define MAXTICS 10
+#define DEMOTICS 4
 
 extern int tics;
 
-#define mapwidth	64
-#define mapheight	64
+#define mapwidth 64
+#define mapheight 64
 
 #endif

@@ -1,22 +1,22 @@
 #include "include/wl_def.h"
 
 //	Global variables
-boolean		NoWait;
-word		PrintX,PrintY;
-word		WindowX,WindowY,WindowW,WindowH;
+boolean NoWait;
+word PrintX, PrintY;
+word WindowX, WindowY, WindowW, WindowH;
 
 //	Internal variables
 
-static	boolean	US_Started;
+static boolean US_Started;
 
-HighScore	Scores[MaxScores] = {
-		{"id software-'92",10000,1},
-		{"Adrian Carmack",10000,1},
-		{"John Carmack",10000,1},
-		{"Kevin Cloud",10000,1},
-		{"Tom Hall",10000,1},
-		{"John Romero",10000,1},
-		{"Jay Wilbur",10000,1},
+HighScore Scores[MaxScores] = {
+	{"id software-'92", 10000, 1},
+	{"Adrian Carmack", 10000, 1},
+	{"John Carmack", 10000, 1},
+	{"Kevin Cloud", 10000, 1},
+	{"Tom Hall", 10000, 1},
+	{"John Romero", 10000, 1},
+	{"Jay Wilbur", 10000, 1},
 };
 
 //	Public routines
@@ -38,7 +38,6 @@ void US_Startup()
 
 	US_Started = true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -66,7 +65,7 @@ void US_Print(char *str)
 	char c, *se, *s, *sz = strdup(str);
 	word w, h;
 	s = sz;
-	
+
 	while (*s)
 	{
 		se = s;
@@ -74,7 +73,7 @@ void US_Print(char *str)
 			se++;
 		*se = '\0';
 
-		USL_MeasureString(s,&w,&h);
+		USL_MeasureString(s, &w, &h);
 		px = PrintX;
 		py = PrintY;
 		USL_DrawString(s);
@@ -91,10 +90,10 @@ void US_Print(char *str)
 		else
 			PrintX += w;
 	}
-	
+
 	px = PrintX;
 	py = PrintY;
-	
+
 	free(sz);
 }
 
@@ -107,7 +106,7 @@ void US_PrintUnsigned(longword n)
 {
 	char buffer[32];
 
-	US_Print(ultoa(n,buffer,10));
+	US_Print(ultoa(n, buffer, 10));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -142,7 +141,7 @@ void US_PrintCentered(char *s)
 	r.lr.x = r.ul.x + WindowW;
 	r.lr.y = r.ul.y + WindowH;
 
-	USL_PrintInCenter(s,r);
+	USL_PrintInCenter(s, r);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -174,10 +173,10 @@ void US_CPrintLine(char *s)
 void US_CPrint(char *str)
 {
 	/* Functions like to pass a string constant */
-	
+
 	char c, *se, *s, *sz = strdup(str);
 	s = sz;
-	
+
 	while (*s)
 	{
 		se = s;
@@ -194,7 +193,7 @@ void US_CPrint(char *str)
 			s++;
 		}
 	}
-	
+
 	free(sz);
 }
 
@@ -206,7 +205,7 @@ void US_CPrint(char *str)
 ///////////////////////////////////////////////////////////////////////////
 void US_ClearWindow()
 {
-	VW_Bar(WindowX,WindowY,WindowW,WindowH,WHITE);
+	VW_Bar(WindowX, WindowY, WindowW, WindowH, WHITE);
 	PrintX = WindowX;
 	PrintY = WindowY;
 }
@@ -216,9 +215,9 @@ void US_ClearWindow()
 //	US_DrawWindow() - Draws a frame and sets the current window parms
 //
 ///////////////////////////////////////////////////////////////////////////
-void US_DrawWindow(word x,word y,word w,word h)
+void US_DrawWindow(word x, word y, word w, word h)
 {
-	word	i,sx,sy,sw,sh;
+	word i, sx, sy, sw, sh;
 
 	WindowX = x * 8;
 	WindowY = y * 8;
@@ -235,13 +234,13 @@ void US_DrawWindow(word x,word y,word w,word h)
 
 	US_ClearWindow();
 
-	VWB_DrawTile8(sx,sy,0),VWB_DrawTile8(sx,sy + sh,5);
-	for (i = sx + 8;i <= sx + sw - 8;i += 8)
-		VWB_DrawTile8(i,sy,1),VWB_DrawTile8(i,sy + sh,6);
-	VWB_DrawTile8(i,sy,2),VWB_DrawTile8(i,sy + sh,7);
+	VWB_DrawTile8(sx, sy, 0), VWB_DrawTile8(sx, sy + sh, 5);
+	for (i = sx + 8; i <= sx + sw - 8; i += 8)
+		VWB_DrawTile8(i, sy, 1), VWB_DrawTile8(i, sy + sh, 6);
+	VWB_DrawTile8(i, sy, 2), VWB_DrawTile8(i, sy + sh, 7);
 
-	for (i = sy + 8;i <= sy + sh - 8;i += 8)
-		VWB_DrawTile8(sx,i,3),VWB_DrawTile8(sx + sw,i,4);
+	for (i = sy + 8; i <= sy + sh - 8; i += 8)
+		VWB_DrawTile8(sx, i, 3), VWB_DrawTile8(sx + sw, i, 4);
 }
 
 //	Input routines
@@ -258,21 +257,21 @@ static void USL_XORICursor(int x, int y, char *s, word cursor)
 	int temp;
 	word w, h;
 
-	strcpy(buf,s);
+	strcpy(buf, s);
 	buf[cursor] = '\0';
-	USL_MeasureString(buf,&w,&h);
+	USL_MeasureString(buf, &w, &h);
 
 	px = x + w - 1;
 	py = y;
 	if (status ^= 1)
 		USL_DrawString("\x80");
-	else {
+	else
+	{
 		temp = fontcolor;
 		fontcolor = backcolor;
 		USL_DrawString("\x80");
 		fontcolor = temp;
 	}
-
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -285,17 +284,17 @@ static void USL_XORICursor(int x, int y, char *s, word cursor)
 //		returned
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
-				int maxchars,int maxwidth)
+boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
+					 int maxchars, int maxwidth)
 {
-	boolean	redraw, cursorvis, cursormoved, done, result = true;
+	boolean redraw, cursorvis, cursormoved, done, result = true;
 	ScanCode sc;
 	char c, s[MaxString], olds[MaxString];
 	word i, cursor, w, h, len, temp;
 	longword lasttime;
 
 	if (def)
-		strcpy(s,def);
+		strcpy(s, def);
 	else
 		*s = '\0';
 	*olds = '\0';
@@ -310,10 +309,10 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 	while (!done)
 	{
 		if (cursorvis)
-			USL_XORICursor(x,y,s,cursor);
+			USL_XORICursor(x, y, s, cursor);
 
 		IN_CheckAck();
-		
+
 		sc = LastScan;
 		LastScan = sc_None;
 		c = LastASCII;
@@ -345,7 +344,7 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 			break;
 
 		case sc_Return:
-			strcpy(buf,s);
+			strcpy(buf, s);
 			done = true;
 			result = true;
 			c = key_None;
@@ -362,7 +361,7 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 		case sc_BackSpace:
 			if (cursor)
 			{
-				strcpy(s + cursor - 1,s + cursor);
+				strcpy(s + cursor - 1, s + cursor);
 				cursor--;
 				redraw = true;
 			}
@@ -372,14 +371,14 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 		case sc_Delete:
 			if (s[cursor])
 			{
-				strcpy(s + cursor,s + cursor + 1);
+				strcpy(s + cursor, s + cursor + 1);
 				redraw = true;
 			}
 			c = key_None;
 			cursormoved = true;
 			break;
 
-		case 0x4c:	// Keypad 5
+		case 0x4c: // Keypad 5
 		case sc_UpArrow:
 		case sc_DownArrow:
 		case sc_PgUp:
@@ -392,17 +391,12 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 		if (c)
 		{
 			len = strlen(s);
-			USL_MeasureString(s,&w,&h);
+			USL_MeasureString(s, &w, &h);
 
-			if
-			(
-				isprint(c)
-			&&	(len < MaxString - 1)
-			&&	((!maxchars) || (len < maxchars))
-			&&	((!maxwidth) || (w < maxwidth))
-			)
+			if (
+				isprint(c) && (len < MaxString - 1) && ((!maxchars) || (len < maxchars)) && ((!maxwidth) || (w < maxwidth)))
 			{
-				for (i = len + 1;i > cursor;i--)
+				for (i = len + 1; i > cursor; i--)
 					s[i] = s[i - 1];
 				s[cursor++] = c;
 				redraw = true;
@@ -417,7 +411,7 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 			fontcolor = backcolor;
 			USL_DrawString(olds);
 			fontcolor = temp;
-			strcpy(olds,s);
+			strcpy(olds, s);
 
 			px = x;
 			py = y;
@@ -433,20 +427,20 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 
 			cursormoved = false;
 		}
-		if ( (get_TimeCount() - lasttime) > (TickBase / 2) )
+		if ((get_TimeCount() - lasttime) > (TickBase / 2))
 		{
 			lasttime = get_TimeCount();
 
 			cursorvis ^= true;
 		}
 		if (cursorvis)
-			USL_XORICursor(x,y,s,cursor);
+			USL_XORICursor(x, y, s, cursor);
 
 		VW_UpdateScreen();
 	}
 
 	if (cursorvis)
-		USL_XORICursor(x,y,s,cursor);
+		USL_XORICursor(x, y, s, cursor);
 	if (!result)
 	{
 		px = x;
@@ -456,30 +450,29 @@ boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok,
 	VW_UpdateScreen();
 
 	IN_ClearKeysDown();
-	return(result);
+	return (result);
 }
 
-static const int rndtable[256] ={
-  0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66,
- 74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36,
- 95, 110,  85,  48, 212, 140, 211, 249,  22,  79, 200,  50,  28, 188,
- 52, 140, 202, 120,  68, 145,  62,  70, 184, 190,  91, 197, 152, 224,
-149, 104,  25, 178, 252, 182, 202, 182, 141, 197,   4,  81, 181, 242,
-145,  42,  39, 227, 156, 198, 225, 193, 219,  93, 122, 175, 249,   0,
-175, 143,  70, 239,  46, 246, 163,  53, 163, 109, 168, 135,   2, 235,
- 25,  92,  20, 145, 138,  77,  69, 166,  78, 176, 173, 212, 166, 113,
- 94, 161,  41,  50, 239,  49, 111, 164,  70,  60,   2,  37, 171,  75,
-136, 156,  11,  56,  42, 146, 138, 229,  73, 146,  77,  61,  98, 196,
-135, 106,  63, 197, 195,  86,  96, 203, 113, 101, 170, 247, 181, 113,
- 80, 250, 108,   7, 255, 237, 129, 226,  79, 107, 112, 166, 103, 241,
- 24, 223, 239, 120, 198,  58,  60,  82, 128,   3, 184,  66, 143, 224,
-145, 224,  81, 206, 163,  45,  63,  90, 168, 114,  59,  33, 159,  95,
- 28, 139, 123,  98, 125, 196,  15,  70, 194, 253,  54,  14, 109, 226,
- 71,  17, 161,  93, 186,  87, 244, 138,  20,  52, 123, 251,  26,  36,
- 17,  46,  52, 231, 232,  76,  31, 221,  84,  37, 216, 165, 212, 106,
-197, 242,  98,  43,  39, 175, 254, 145, 190,  84, 118, 222, 187, 136,
-120, 163, 236, 249
-};
+static const int rndtable[256] = {
+	0, 8, 109, 220, 222, 241, 149, 107, 75, 248, 254, 140, 16, 66,
+	74, 21, 211, 47, 80, 242, 154, 27, 205, 128, 161, 89, 77, 36,
+	95, 110, 85, 48, 212, 140, 211, 249, 22, 79, 200, 50, 28, 188,
+	52, 140, 202, 120, 68, 145, 62, 70, 184, 190, 91, 197, 152, 224,
+	149, 104, 25, 178, 252, 182, 202, 182, 141, 197, 4, 81, 181, 242,
+	145, 42, 39, 227, 156, 198, 225, 193, 219, 93, 122, 175, 249, 0,
+	175, 143, 70, 239, 46, 246, 163, 53, 163, 109, 168, 135, 2, 235,
+	25, 92, 20, 145, 138, 77, 69, 166, 78, 176, 173, 212, 166, 113,
+	94, 161, 41, 50, 239, 49, 111, 164, 70, 60, 2, 37, 171, 75,
+	136, 156, 11, 56, 42, 146, 138, 229, 73, 146, 77, 61, 98, 196,
+	135, 106, 63, 197, 195, 86, 96, 203, 113, 101, 170, 247, 181, 113,
+	80, 250, 108, 7, 255, 237, 129, 226, 79, 107, 112, 166, 103, 241,
+	24, 223, 239, 120, 198, 58, 60, 82, 128, 3, 184, 66, 143, 224,
+	145, 224, 81, 206, 163, 45, 63, 90, 168, 114, 59, 33, 159, 95,
+	28, 139, 123, 98, 125, 196, 15, 70, 194, 253, 54, 14, 109, 226,
+	71, 17, 161, 93, 186, 87, 244, 138, 20, 52, 123, 251, 26, 36,
+	17, 46, 52, 231, 232, 76, 31, 221, 84, 37, 216, 165, 212, 106,
+	197, 242, 98, 43, 39, 175, 254, 145, 190, 84, 118, 222, 187, 136,
+	120, 163, 236, 249};
 
 static int rndindex = 0;
 

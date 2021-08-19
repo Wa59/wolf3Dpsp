@@ -2,24 +2,24 @@
 #define __ID_VH_H__
 
 // colors
-#define BLACK			0
-#define BLUE			1
-#define GREEN			2
-#define CYAN			3
-#define RED				4
-#define MAGENTA			5
-#define BROWN			6
-#define GRAY			7
+#define BLACK 0
+#define BLUE 1
+#define GREEN 2
+#define CYAN 3
+#define RED 4
+#define MAGENTA 5
+#define BROWN 6
+#define GRAY 7
 // lite version of the above colors
-#define	LITE			8
-#define DARKGRAY		(LITE + BLACK)
-#define LITEBLUE		(LITE + BLUE)
-#define LITEGREEN		(LITE + GREEN)
-#define LITECYAN		(LITE + CYAN)
-#define LITERED			(LITE + RED)
-#define LITEMAGENTA		(LITE + MAGENTA)
-#define YELLOW			(LITE + BROWN)
-#define WHITE			(LITE + GRAY)
+#define LITE 8
+#define DARKGRAY (LITE + BLACK)
+#define LITEBLUE (LITE + BLUE)
+#define LITEGREEN (LITE + GREEN)
+#define LITECYAN (LITE + CYAN)
+#define LITERED (LITE + RED)
+#define LITEMAGENTA (LITE + MAGENTA)
+#define YELLOW (LITE + BROWN)
+#define WHITE (LITE + GRAY)
 
 typedef struct
 {
@@ -32,7 +32,11 @@ extern byte fontcolor, backcolor;
 extern int fontnumber;
 extern int px, py;
 
-#define SETFONTCOLOR(f, b) { fontcolor = f; backcolor = b; }
+#define SETFONTCOLOR(f, b) \
+	{                      \
+		fontcolor = f;     \
+		backcolor = b;     \
+	}
 
 void VW_UpdateScreen();
 
@@ -41,12 +45,12 @@ void VWB_DrawPic(int x, int y, int chunknum);
 
 extern boolean screenfaded;
 
-#define VW_Hlin(x,z,y,c)	VL_Hlin(x,y,(z)-(x)+1,c)
-#define VW_Vlin(y,z,x,c)	VL_Vlin(x,y,(z)-(y)+1,c)
-#define VW_WaitVBL		VL_WaitVBL
-#define VW_FadeIn()		VL_FadeIn(0,255,gamepal,30);
-#define VW_FadeOut()		VL_FadeOut(0,255,0,0,0,30);
-void	VW_MeasurePropString(char *string, word *width, word *height);
+#define VW_Hlin(x, z, y, c) VL_Hlin(x, y, (z) - (x) + 1, c)
+#define VW_Vlin(y, z, x, c) VL_Vlin(x, y, (z) - (y) + 1, c)
+#define VW_WaitVBL VL_WaitVBL
+#define VW_FadeIn() VL_FadeIn(0, 255, gamepal, 30);
+#define VW_FadeOut() VL_FadeOut(0, 255, 0, 0, 0, 30);
+void VW_MeasurePropString(char *string, word *width, word *height);
 
 void VW_DrawPropString(char *string);
 

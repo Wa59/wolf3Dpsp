@@ -13,32 +13,37 @@
 
 #define PACKED __attribute__((packed))
 
-typedef	struct {
+typedef struct
+{
 	longword length;
 	word priority;
 } PACKED SoundCommon;
 
-typedef	struct {
+typedef struct
+{
 	SoundCommon common;
 	byte data[1];
 } PACKED PCSound;
 
-typedef	struct {
+typedef struct
+{
 	byte mChar, cChar, mScale, cScale, mAttack, cAttack, mSus, cSus,
 		mWave, cWave, nConn, voice, mode, unused[3];
 } PACKED Instrument;
 
-typedef	struct {
+typedef struct
+{
 	SoundCommon common;
 	Instrument inst;
 	byte block, data[1];
 } PACKED AdLibSound;
 
-typedef	struct {
+typedef struct
+{
 	word length, values[1];
 } PACKED MusicGroup;
 
-boolean AdLibPresent=true, SoundBlasterPresent=true;
+boolean AdLibPresent = true, SoundBlasterPresent = true;
 
 SDMode SoundMode;
 SMMode MusicMode;
@@ -89,10 +94,8 @@ static byte AdlibBlock;
 static byte *AdlibData;
 static int AdlibLength;
 
-
 static void SetSoundLoc(fixed gx, fixed gy);
 static boolean SD_PlayDirSound(soundnames sound, fixed gx, fixed gy);
-
 
 void SD_SetVolume(int vol)
 {
@@ -127,17 +130,19 @@ void FillSoundBuff(void)
 	Instrument *inst;
 
 	// start by computing next buffer worth of music
-	if ((MusicMode!=smm_Off) || (SoundMode!=sdm_Off)) {
-		if (NewAdlib != -1) {
+	if ((MusicMode != smm_Off) || (SoundMode != sdm_Off))
+	{
+		if (NewAdlib != -1)
+		{
 			AdlibPlaying = NewAdlib;
-			AdlibSnd = (AdLibSound *)audiosegs[STARTADLIBSOUNDS+AdlibPlaying];
+			AdlibSnd = (AdLibSound *)audiosegs[STARTADLIBSOUNDS + AdlibPlaying];
 			inst = (Instrument *)&AdlibSnd->inst;
-#define alChar		0x20
-#define alScale		0x40
-#define alAttack	0x60
-#define alSus		0x80
-#define alFeedCon	0xC0
-#define alWave		0xE0
+#define alChar 0x20
+#define alScale 0x40
+#define alAttack 0x60
+#define alSus 0x80
+#define alFeedCon 0xC0
+#define alWave 0xE0
 
 			OPLWrite(OPL, 0 + alChar, 0);
 			OPLWrite(OPL, 0 + alScale, 0);
@@ -168,51 +173,67 @@ void FillSoundBuff(void)
 
 			AdlibBlock = ((AdlibSnd->block & 7) << 2) | 0x20;
 			AdlibData = (byte *)&AdlibSnd->data;
-			AdlibLength = AdlibSnd->common.length*5;
+			AdlibLength = AdlibSnd->common.length * 5;
 			//OPLWrite(OPL, 0xB0, AdlibBlock);
 			NewAdlib = -1;
 		}
 
-		if (NewMusic != -1) {
+		if (NewMusic != -1)
+		{
 			NewMusic = -1;
 			MusicLength = Music->length;
 			MusicData = Music->values;
 			MusicCount = 0;
 		}
-		for (i = 0; i < 4; i++) {
-			if (sqActive) {
-				while (MusicCount <= 0) {
+		for (i = 0; i < 4; i++)
+		{
+			if (sqActive)
+			{
+				while (MusicCount <= 0)
+				{
 					dat = *MusicData++;
 					MusicCount = *MusicData++;
 					MusicLength -= 4;
 					OPLWrite(OPL, dat & 0xFF, dat >> 8);
 				}
-				if (MusicLength <= 0) {
+				if (MusicLength <= 0)
+				{
 					NewMusic = 1;
 				}
-				MusicCount-=2;
+				MusicCount -= 2;
 			}
 
-			if (AdlibPlaying != -1) {
-				if (AdlibLength == 0) {
+			if (AdlibPlaying != -1)
+			{
+				if (AdlibLength == 0)
+				{
 					//OPLWrite(OPL, 0xB0, AdlibBlock);
-				} else if (AdlibLength == -1) {
+				}
+				else if (AdlibLength == -1)
+				{
 					OPLWrite(OPL, 0xA0, 00);
 					OPLWrite(OPL, 0xB0, AdlibBlock);
 					AdlibPlaying = -1;
-				} else if ((AdlibLength % 5) == 0) {
+				}
+				else if ((AdlibLength % 5) == 0)
+				{
 					OPLWrite(OPL, 0xA0, *AdlibData);
 					OPLWrite(OPL, 0xB0, AdlibBlock & ~2);
 					AdlibData++;
 				}
 				AdlibLength--;
-				if (AdlibLength == 0) {
+				if (AdlibLength == 0)
+				{
 					//OPLWrite(OPL, 0xB0, AdlibBlock);
-				} else if (AdlibLength == -1) {
+				}
+				else if (AdlibLength == -1)
+				{
 					OPLWrite(OPL, 0xA0, 00);
 					OPLWrite(OPL, 0xB0, AdlibBlock);
 					AdlibPlaying = -1;
-				} else if ((AdlibLength % 5) == 0) {
+				}
+				else if ((AdlibLength % 5) == 0)
+				{
 					OPLWrite(OPL, 0xA0, *AdlibData);
 					OPLWrite(OPL, 0xB0, AdlibBlock & ~2);
 					AdlibData++;
@@ -220,49 +241,59 @@ void FillSoundBuff(void)
 				AdlibLength--;
 			}
 
-			YM3812UpdateOne(OPL, &musbuf[i*NUM_SAMPS/4], NUM_SAMPS/4);
+			YM3812UpdateOne(OPL, &musbuf[i * NUM_SAMPS / 4], NUM_SAMPS / 4);
 		}
 	}
 
 	//prefill audio buffer with music
-	for (i = 0; i < NUM_SAMPS*2; i++)
-		sdlbuf[i] = musbuf[i/2];
+	for (i = 0; i < NUM_SAMPS * 2; i++)
+		sdlbuf[i] = musbuf[i / 2];
 
 	// now add in sound effects
-	for (j=0; j<NUM_SFX; j++) {
+	for (j = 0; j < NUM_SFX; j++)
+	{
 		if (SoundPlaying[j] == -1)
 			continue;
 
 		// compute L/R scale based on player position and stored sound position
-		if (SoundPositioned[j]) {
+		if (SoundPositioned[j])
+		{
 			SetSoundLoc(SoundGX[j], SoundGY[j]);
 			L = leftchannel;
 			R = rightchannel;
 		}
 
 		// now add sound effect data to buffer
-		for (i = 0; i < NUM_SAMPS*2; i += 2) {
-			samp = (SoundData[j][(SoundPlayPos[j] >> 16)] << 8)^0x8000;
-			if (SoundPositioned[j]) {
-				snd = samp*(16-L)>>5;
-				sdlbuf[i+0] += snd;
-				snd = samp*(16-R)>>5;
-				sdlbuf[i+1] += snd;
-			} else {
-				snd = samp>>2;
-				sdlbuf[i+0] += snd;
-				sdlbuf[i+1] += snd;
+		for (i = 0; i < NUM_SAMPS * 2; i += 2)
+		{
+			samp = (SoundData[j][(SoundPlayPos[j] >> 16)] << 8) ^ 0x8000;
+			if (SoundPositioned[j])
+			{
+				snd = samp * (16 - L) >> 5;
+				sdlbuf[i + 0] += snd;
+				snd = samp * (16 - R) >> 5;
+				sdlbuf[i + 1] += snd;
+			}
+			else
+			{
+				snd = samp >> 2;
+				sdlbuf[i + 0] += snd;
+				sdlbuf[i + 1] += snd;
 			}
 			SoundPlayPos[j] += 10402; // 7000 / 44100 * 65536
-			if ((SoundPlayPos[j] >> 16) >= SoundPlayLen[j]) {
+			if ((SoundPlayPos[j] >> 16) >= SoundPlayLen[j])
+			{
 				SoundPlayPos[j] -= (SoundPlayLen[j] << 16);
 				SoundLen[j] -= 4096;
 				SoundPlayLen[j] = (SoundLen[j] < 4096) ? SoundLen[j] : 4096;
-				if (SoundLen[j] <= 0) {
+				if (SoundLen[j] <= 0)
+				{
 					SoundPlaying[j] = -1;
 					CurDigi[j] = -1;
-					i = NUM_SAMPS*2;
-				} else {
+					i = NUM_SAMPS * 2;
+				}
+				else
+				{
 					SoundPage[j]++;
 					SoundData[j] = PM_GetSoundPage(SoundPage[j]);
 				}
@@ -270,7 +301,6 @@ void FillSoundBuff(void)
 		}
 	}
 }
-
 
 void SoundCallBack(void *unused, Uint8 *stream, int len)
 {
@@ -280,38 +310,38 @@ void SoundCallBack(void *unused, Uint8 *stream, int len)
 	waveptr = (Uint8 *)sdlbuf + bufpos;
 	waveleft = sizeof(sdlbuf) - bufpos;
 
-    SDL_MixAudio(stream, waveptr, len, Volume*SDL_MIX_MAXVOLUME/10);
-    bufpos += len;
+	SDL_MixAudio(stream, waveptr, len, Volume * SDL_MIX_MAXVOLUME / 10);
+	bufpos += len;
 	if (len >= waveleft)
 		bufpos = 0;
 
-    if (bufpos==0)
-      FillSoundBuff();
+	if (bufpos == 0)
+		FillSoundBuff();
 }
 
 void Blah()
 {
-    memptr  list;
-    word    *p, pg;
-    int     i;
+	memptr list;
+	word *p, pg;
+	int i;
 
-	if (DigiList!=NULL)
+	if (DigiList != NULL)
 		free(DigiList);
 
-    MM_GetPtr(&list,PMPageSize);
-    p = PM_GetPage(ChunksInFile - 1);
-    memcpy((void *)list,(void *)p,PMPageSize);
+	MM_GetPtr(&list, PMPageSize);
+	p = PM_GetPage(ChunksInFile - 1);
+	memcpy((void *)list, (void *)p, PMPageSize);
 
-    pg = PMSoundStart;
-    for (i = 0;i < PMPageSize / (sizeof(word) * 2);i++,p += 2)
-    {
-	    if (pg >= ChunksInFile - 1)
-        	break;
-        pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
-    }
-    MM_GetPtr((memptr *)&DigiList, i * sizeof(word) * 2);
-    memcpy((void *)DigiList, (void *)list, i * sizeof(word) * 2);
-    MM_FreePtr(&list);
+	pg = PMSoundStart;
+	for (i = 0; i < PMPageSize / (sizeof(word) * 2); i++, p += 2)
+	{
+		if (pg >= ChunksInFile - 1)
+			break;
+		pg += (p[1] + (PMPageSize - 1)) / PMPageSize;
+	}
+	MM_GetPtr((memptr *)&DigiList, i * sizeof(word) * 2);
+	memcpy((void *)DigiList, (void *)list, i * sizeof(word) * 2);
+	MM_FreePtr(&list);
 }
 
 void SD_Startup()
@@ -326,7 +356,8 @@ void SD_Startup()
 	InitDigiMap();
 	OPL = OPLCreate(OPL_TYPE_YM3812, 3579545, 44100);
 
-	for (i=0; i<NUM_SFX; i++) {
+	for (i = 0; i < NUM_SFX; i++)
+	{
 		SoundPlaying[i] = -1;
 		CurDigi[i] = -1;
 	}
@@ -337,17 +368,19 @@ void SD_Startup()
 	AdlibPlaying = -1;
 	sqActive = false;
 
-	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
 		printf("failed to init audio\n");
 		return;
-    }
+	}
 
 	aspec.freq = 44100;
 	aspec.format = AUDIO_S16SYS;
 	aspec.channels = 2;
 	aspec.samples = NUM_SAMPS;
 	aspec.callback = SoundCallBack;
-	if ( SDL_OpenAudio(&aspec, NULL) < 0 ) {
+	if (SDL_OpenAudio(&aspec, NULL) < 0)
+	{
 		printf("couldn't open audio with desired format\n");
 		return;
 	}
@@ -388,46 +421,53 @@ static boolean SD_PlayDirSound(soundnames sound, fixed gx, fixed gy)
 
 	s = (SoundCommon *)audiosegs[STARTADLIBSOUNDS + sound];
 
-	if (DigiMode != sds_Off) {
-	if (DigiMap[sound] != -1) {
-		int i;
+	if (DigiMode != sds_Off)
+	{
+		if (DigiMap[sound] != -1)
+		{
+			int i;
 
-		for (i=0; i<NUM_SFX; i++)
-			if (SoundPlaying[i] == -1)
-				break;
-		if (i == NUM_SFX)
-			for (i=0; i<NUM_SFX; i++)
-				if (s->priority >= ((SoundCommon *)audiosegs[STARTADLIBSOUNDS+CurDigi[i]])->priority)
+			for (i = 0; i < NUM_SFX; i++)
+				if (SoundPlaying[i] == -1)
 					break;
-		if (i == NUM_SFX)
-			return false; // no free channels, and priority not high enough to preempt a playing sound
+			if (i == NUM_SFX)
+				for (i = 0; i < NUM_SFX; i++)
+					if (s->priority >= ((SoundCommon *)audiosegs[STARTADLIBSOUNDS + CurDigi[i]])->priority)
+						break;
+			if (i == NUM_SFX)
+				return false; // no free channels, and priority not high enough to preempt a playing sound
 
-		SoundPage[i] = DigiList[(DigiMap[sound] * 2) + 0];
-		SoundData[i] = PM_GetSoundPage(SoundPage[i]);
-		SoundLen[i] = DigiList[(DigiMap[sound] * 2) + 1];
-		SoundPlayLen[i] = (SoundLen[i] < 4096) ? SoundLen[i] : 4096;
-		SoundPlayPos[i] = 0;
-		if (SPHack) {
-			SPHack = false;
-			SoundGX[i] = gx;
-			SoundGY[i] = gy;
-			SoundPositioned[i] = true;
-		} else {
-			SoundPositioned[i] = false;
+			SoundPage[i] = DigiList[(DigiMap[sound] * 2) + 0];
+			SoundData[i] = PM_GetSoundPage(SoundPage[i]);
+			SoundLen[i] = DigiList[(DigiMap[sound] * 2) + 1];
+			SoundPlayLen[i] = (SoundLen[i] < 4096) ? SoundLen[i] : 4096;
+			SoundPlayPos[i] = 0;
+			if (SPHack)
+			{
+				SPHack = false;
+				SoundGX[i] = gx;
+				SoundGY[i] = gy;
+				SoundPositioned[i] = true;
+			}
+			else
+			{
+				SoundPositioned[i] = false;
+			}
+			CurDigi[i] = sound;
+			SoundPlaying[i] = DigiMap[sound];
+			return true;
 		}
-		CurDigi[i] = sound;
-		SoundPlaying[i] = DigiMap[sound];
-		return true;
-	}
 	}
 
-	if (SoundMode != sdm_Off) {
-	if ((AdlibPlaying == -1) || (CurAdlib == -1) ||
-	(s->priority >= ((SoundCommon *)audiosegs[STARTADLIBSOUNDS+CurAdlib])->priority) ) {
-		CurAdlib = sound;
-		NewAdlib = sound;
-		return true;
-	}
+	if (SoundMode != sdm_Off)
+	{
+		if ((AdlibPlaying == -1) || (CurAdlib == -1) ||
+			(s->priority >= ((SoundCommon *)audiosegs[STARTADLIBSOUNDS + CurAdlib])->priority))
+		{
+			CurAdlib = sound;
+			NewAdlib = sound;
+			return true;
+		}
 	}
 	return false;
 }
@@ -442,7 +482,7 @@ word SD_SoundPlaying()
 {
 	int i;
 
-	for (i=0; i<NUM_SFX; i++)
+	for (i = 0; i < NUM_SFX; i++)
 		if (SoundPlaying[i] != -1)
 			return CurDigi[i];
 
@@ -461,7 +501,8 @@ void SD_StopSound()
 {
 	int i;
 
-	for (i=0; i<NUM_SFX; i++) {
+	for (i = 0; i < NUM_SFX; i++)
+	{
 		SoundPlaying[i] = -1;
 		CurDigi[i] = -1;
 	}
@@ -492,62 +533,60 @@ void SD_WaitSoundDone()
 
 #define ATABLEMAX 15
 static const byte righttable[ATABLEMAX][ATABLEMAX * 2] = {
-{ 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 5, 4, 2, 1, 0, 1, 2, 3, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 5, 4, 3, 2, 2, 3, 3, 5, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 4, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 5, 5, 6, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
-};
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 6, 0, 0, 0, 0, 0, 1, 3, 5, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 6, 4, 0, 0, 0, 0, 0, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 4, 1, 0, 0, 0, 1, 2, 4, 6, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 5, 4, 2, 1, 0, 1, 2, 3, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 5, 4, 3, 2, 2, 3, 3, 5, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 4, 4, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 5, 5, 6, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
 static const byte lefttable[ATABLEMAX][ATABLEMAX * 2] = {
-{ 8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 3, 2, 1, 0, 1, 2, 4, 5, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 5, 3, 3, 2, 2, 3, 4, 5, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 5, 4, 4, 4, 4, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 6, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
-{ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
-};
+	{8, 8, 8, 8, 8, 8, 8, 8, 5, 3, 1, 0, 0, 0, 0, 0, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 0, 0, 0, 0, 0, 4, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 6, 4, 2, 1, 0, 0, 0, 1, 4, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 3, 2, 1, 0, 1, 2, 4, 5, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 5, 3, 3, 2, 2, 3, 4, 5, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 5, 4, 4, 4, 4, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 6, 6, 5, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 6, 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
+	{8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}};
 
 static void SetSoundLoc(fixed gx, fixed gy)
 {
 	fixed xt, yt;
 	int x, y;
 
-// translate point to view centered coordinates
-//
+	// translate point to view centered coordinates
+	//
 	gx -= viewx;
 	gy -= viewy;
 
-//
-// calculate newx
-//
-	xt = FixedByFrac(gx,viewcos);
-	yt = FixedByFrac(gy,viewsin);
+	//
+	// calculate newx
+	//
+	xt = FixedByFrac(gx, viewcos);
+	yt = FixedByFrac(gy, viewsin);
 	x = (xt - yt) >> TILESHIFT;
 
-//
-// calculate newy
-//
-	xt = FixedByFrac(gx,viewsin);
-	yt = FixedByFrac(gy,viewcos);
+	//
+	// calculate newy
+	//
+	xt = FixedByFrac(gx, viewsin);
+	yt = FixedByFrac(gy, viewcos);
 	y = (yt + xt) >> TILESHIFT;
 
 	if (y >= ATABLEMAX)
@@ -559,7 +598,7 @@ static void SetSoundLoc(fixed gx, fixed gy)
 	if (x >= ATABLEMAX)
 		x = ATABLEMAX - 1;
 
-	leftchannel  =  lefttable[x][y + ATABLEMAX];
+	leftchannel = lefttable[x][y + ATABLEMAX];
 	rightchannel = righttable[x][y + ATABLEMAX];
 }
 
@@ -608,7 +647,7 @@ void SD_MusicOff()
 	sqActive = false;
 	OPLResetChip(OPL);
 
-	for (j=0; j<NUM_SAMPS; j++)
+	for (j = 0; j < NUM_SAMPS; j++)
 		musbuf[j] = 0;
 }
 
@@ -623,7 +662,8 @@ void SD_StartMusic(int music)
 
 	CA_CacheAudioChunk(music);
 
-	if (MusicMode!=sdm_Off) {
+	if (MusicMode != sdm_Off)
+	{
 		SD_MusicOff();
 		SD_MusicOn();
 	}
@@ -634,8 +674,9 @@ void SD_StartMusic(int music)
 
 void SD_SetDigiDevice(SDSMode mode)
 {
-	if ((mode==sds_Off) || (mode==sds_SoundBlaster)) {
-		DigiMode=mode;
+	if ((mode == sds_Off) || (mode == sds_SoundBlaster))
+	{
+		DigiMode = mode;
 	}
 }
 
@@ -646,8 +687,9 @@ void SD_SetDigiDevice(SDSMode mode)
 ///////////////////////////////////////////////////////////////////////////
 boolean SD_SetSoundMode(SDMode mode)
 {
-	if ((mode==sdm_Off) || (mode==sdm_AdLib)) {
-		SoundMode=mode;
+	if ((mode == sdm_Off) || (mode == sdm_AdLib))
+	{
+		SoundMode = mode;
 		return true;
 	}
 	return false;
@@ -660,13 +702,15 @@ boolean SD_SetSoundMode(SDMode mode)
 ///////////////////////////////////////////////////////////////////////////
 boolean SD_SetMusicMode(SMMode mode)
 {
-	if (mode==smm_Off) {
-		MusicMode=mode;
+	if (mode == smm_Off)
+	{
+		MusicMode = mode;
 		SD_MusicOff();
 		return true;
 	}
-	if (mode==smm_AdLib) {
-		MusicMode=mode;
+	if (mode == smm_AdLib)
+	{
+		MusicMode = mode;
 		//SD_MusicOn();
 		return true;
 	}

@@ -2,15 +2,11 @@
 #include "SDL/SDL.h"
 #include <pspctrl.h>
 #include <psppower.h>
-#include <pspkernel.h>
-#include <pspdebug.h>
-
 
 PSP_HEAP_SIZE_KB(-256);
 
 byte *gfxbuf = NULL;
 SDL_Surface *surface;
-SDL_Surface *screen;
 SDL_Joystick *joy;
 
 extern void keyboard_handler(int code, int press);
@@ -18,15 +14,12 @@ extern boolean InternalKeyboard[NumCodes];
 
 SceCtrlData pad;
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	sceCtrlSetSamplingMode(1);
 	sceCtrlSetSamplingCycle(0);
 	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 	scePowerSetClockFrequency(333, 333, 166);
-
-	pspDebugScreenInit();
-
 	return WolfMain(argc, argv);
 }
 
@@ -44,32 +37,38 @@ void Quit(char *error)
 {
 	memptr screen = NULL;
 
-	if (!error || !*error) {
+	if (!error || !*error)
+	{
 		CA_CacheGrChunk(ORDERSCREEN);
 		screen = grsegs[ORDERSCREEN];
-		//WriteConfig();
-	} else if (error) {
+		WriteConfig();
+	}
+	else if (error)
+	{
 		CA_CacheGrChunk(ERRORSCREEN);
 		screen = grsegs[ERRORSCREEN];
 	}
 
 	ShutdownId();
 
-	if (screen) {
+	if (screen)
+	{
 		//DisplayTextSplash(screen);
 	}
 
-	if (error && *error) {
+	if (error && *error)
+	{
 		fprintf(stderr, "Quit: %s\n", error);
 		exit(EXIT_FAILURE);
- 	}
+	}
 	exit(EXIT_SUCCESS);
 }
 
 void VL_WaitVBL(int vbls)
 {
 	long last = get_TimeCount() + vbls;
-	while (last > get_TimeCount()) ;
+	while (last > get_TimeCount())
+		;
 }
 
 void VW_UpdateScreen()
@@ -94,16 +93,15 @@ void VL_Startup()
 	vwidth = 320;
 	vheight = 200;
 
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_NOPARACHUTE) < 0)
+	{
 		Quit("Couldn't init SDL");
 	}
 
-	SDL_ShowCursor(0);
+	surface = SDL_SetVideoMode(404, 200, 8, SDL_SWSURFACE | SDL_HWPALETTE | SDL_FULLSCREEN);
 
-	surface = SDL_SetVideoMode(404, 200, 8, SDL_SWSURFACE|SDL_HWPALETTE);
-	//screen = SDL_SetVideoMode(480, 272, 8, SDL_SWSURFACE|SDL_HWPALETTE|SDL_FULLSCREEN);
-
-	if (surface == NULL) {
+	if (surface == NULL)
+	{
 		SDL_Quit();
 		Quit("Couldn't set 512x320 mode");
 	}
@@ -111,9 +109,10 @@ void VL_Startup()
 	gfxbuf = surface->pixels + 42;
 	gfxbuf = (byte *)((int)gfxbuf | 0x40000000);
 	sceKernelDcacheWritebackAll();
-	vstride=surface->pitch;
+	vstride = surface->pitch;
 
 	if (surface->flags & SDL_FULLSCREEN)
+		SDL_ShowCursor(0);
 
 	SDL_WM_SetCaption(GAMENAME, GAMENAME);
 }
@@ -154,9 +153,9 @@ void VL_SetPalette(const byte *palette)
 
 	for (i = 0; i < 256; i++)
 	{
-		colors[i].r = palette[i*3+0] << 2;
-		colors[i].g = palette[i*3+1] << 2;
-		colors[i].b = palette[i*3+2] << 2;
+		colors[i].r = palette[i * 3 + 0] << 2;
+		colors[i].g = palette[i * 3 + 1] << 2;
+		colors[i].b = palette[i * 3 + 2] << 2;
 	}
 	SDL_SetColors(surface, colors, 0, 256);
 	// Should also do a flip here.
@@ -174,11 +173,11 @@ void VL_SetPalette(const byte *palette)
 void VL_GetPalette(byte *palette)
 {
 	int i;
-	for (i=0;i<256;i++)
+	for (i = 0; i < 256; i++)
 	{
-		palette[i*3+0] = surface->format->palette->colors[i].r >> 2;
-		palette[i*3+1] = surface->format->palette->colors[i].g >> 2;
-		palette[i*3+2] = surface->format->palette->colors[i].b >> 2;
+		palette[i * 3 + 0] = surface->format->palette->colors[i].r >> 2;
+		palette[i * 3 + 1] = surface->format->palette->colors[i].g >> 2;
+		palette[i * 3 + 2] = surface->format->palette->colors[i].b >> 2;
 	}
 }
 
@@ -192,49 +191,56 @@ void VL_GetPalette(byte *palette)
 
 void ToggleSpeed()
 {
-static int speed = 0;
-int freq[] = { 133, 180, 222, 266, 300, 333 };
-char temp[8];
+	static int speed = 0;
+	int freq[] = {133, 180, 222, 266, 300, 333};
+	char temp[8];
 
-scePowerSetClockFrequency(freq[speed], freq[speed], freq[speed]>>1);
+	scePowerSetClockFrequency(freq[speed], freq[speed], freq[speed] >> 1);
 
-sprintf(temp, "%d MHz", freq[speed]);
-Message (temp);
+	sprintf(temp, "%d MHz", freq[speed]);
+	Message(temp);
 
-sceKernelDelayThread(500*1000);
-speed = (speed + 1) % 6;
+	sceKernelDelayThread(500 * 1000);
+	speed = (speed + 1) % 6;
 }
 
-//static int mx = 0;
-//static int my = 0;
+static int mx = 0;
+static int my = 0;
 
 void INL_Update()
 {
 	static u32 buttons = 0;
-	//static int multiplex = 0;
+	static int multiplex = 0;
 	u32 new_buttons;
-	//static int mu = 0;
-	//static int md = 0;
+	static int mu = 0;
+	static int md = 0;
 
 	sceCtrlReadBufferPositive(&pad, 1);
+	multiplex ^= 1;
+	/*
+	if (multiplex && (pad.Buttons & (PSP_CTRL_RTRIGGER | PSP_CTRL_LTRIGGER)))
+		pad.Buttons &= ~(PSP_CTRL_RIGHT | PSP_CTRL_LEFT);
+	if (!multiplex && (pad.Buttons & (PSP_CTRL_RIGHT | PSP_CTRL_LEFT)))
+		pad.Buttons &= ~(PSP_CTRL_RTRIGGER | PSP_CTRL_LTRIGGER);
+	*/
 	new_buttons = pad.Buttons ^ buttons; // set if button changed
 	buttons = pad.Buttons;
 
 	if (new_buttons & PSP_CTRL_CROSS)
-{
-	if (!(buttons & PSP_CTRL_CROSS))
 	{
-		// X just released
-		keyboard_handler(sc_Control, 0); // FIRE not pressed
-		keyboard_handler(sc_Y, 0); // Y not pressed
+		if (!(buttons & PSP_CTRL_CROSS))
+		{
+			// X just released
+			keyboard_handler(sc_Control, 0); // FIRE not pressed
+			keyboard_handler(sc_Y, 0);		 // Y not pressed
+		}
+		else
+		{
+			// X just pressed
+			keyboard_handler(sc_Control, 1); // FIRE pressed
+			keyboard_handler(sc_Y, 1);		 // Y pressed
+		}
 	}
-	else
-	{
-		// X just pressed
-		keyboard_handler(sc_Control, 1); // FIRE pressed
-		keyboard_handler(sc_Y, 1); // Y pressed
-}
-}
 	if (new_buttons & PSP_CTRL_TRIANGLE)
 	{
 		if (!(buttons & PSP_CTRL_TRIANGLE))
@@ -267,7 +273,7 @@ void INL_Update()
 		if (!(buttons & PSP_CTRL_UP))
 		{
 			// up just released
-			keyboard_handler(sc_1, 0); // weapon 1 not pressed
+			keyboard_handler(sc_1, 0);		 // weapon 1 not pressed
 			keyboard_handler(sc_UpArrow, 0); // up not pressed
 		}
 		else
@@ -284,7 +290,7 @@ void INL_Update()
 		if (!(buttons & PSP_CTRL_RIGHT))
 		{
 			// right just released
-			keyboard_handler(sc_2, 0); // weapon 2 not pressed
+			keyboard_handler(sc_2, 0);			// weapon 2 not pressed
 			keyboard_handler(sc_RightArrow, 0); // right not pressed
 		}
 		else
@@ -301,7 +307,7 @@ void INL_Update()
 		if (!(buttons & PSP_CTRL_DOWN))
 		{
 			// down just released
-			keyboard_handler(sc_3, 0); // weapon 3 not pressed
+			keyboard_handler(sc_3, 0);		   // weapon 3 not pressed
 			keyboard_handler(sc_DownArrow, 0); // down not pressed
 		}
 		else
@@ -318,7 +324,7 @@ void INL_Update()
 		if (!(buttons & PSP_CTRL_LEFT))
 		{
 			// left just released
-			keyboard_handler(sc_4, 0); // weapon 4 not pressed
+			keyboard_handler(sc_4, 0);		   // weapon 4 not pressed
 			keyboard_handler(sc_LeftArrow, 0); // left not pressed
 		}
 		else
@@ -335,16 +341,17 @@ void INL_Update()
 		if (!(buttons & PSP_CTRL_RTRIGGER))
 		{
 			// rtrg just released
-			//keyboard_handler(sc_Alt, 0); // alt not pressed
+			//keyboard_handler(sc_Alt, 0);		// alt not pressed
 			//keyboard_handler(sc_RightArrow, 0); // right not pressed
 			keyboard_handler(sc_D, 0);
 		}
 		else
 		{
 			// rtrg just pressed
-			//keyboard_handler(sc_Alt, 1); // alt pressed
+			//keyboard_handler(sc_Alt, 1);		// alt pressed
 			//keyboard_handler(sc_RightArrow, 1); // right pressed
 			keyboard_handler(sc_D, 1);
+
 		}
 	}
 	if (new_buttons & PSP_CTRL_LTRIGGER)
@@ -352,14 +359,14 @@ void INL_Update()
 		if (!(buttons & PSP_CTRL_LTRIGGER))
 		{
 			// ltrg just released
-			//keyboard_handler(sc_Alt, 0); // alt not pressed
+			//keyboard_handler(sc_Alt, 0);	   // alt not pressed
 			//keyboard_handler(sc_LeftArrow, 0); // left not pressed
 			keyboard_handler(sc_Q, 0);
 		}
 		else
 		{
 			// ltrg just pressed
-			//keyboard_handler(sc_Alt, 1); // alt pressed
+			//keyboard_handler(sc_Alt, 1);	   // alt pressed
 			//keyboard_handler(sc_LeftArrow, 1); // left pressed
 			keyboard_handler(sc_Q, 1);
 		}
@@ -375,9 +382,9 @@ void INL_Update()
 		{
 			// START just pressed
 			if (buttons & PSP_CTRL_CIRCLE)
-			ToggleSpeed();
+				ToggleSpeed();
 			else
-			keyboard_handler(sc_Escape, 1); // MENU pressed
+				keyboard_handler(sc_Escape, 1); // MENU pressed
 		}
 	}
 	if (new_buttons & PSP_CTRL_SELECT)
@@ -386,8 +393,8 @@ void INL_Update()
 		{
 			// SELECT just released
 			keyboard_handler(sc_BackSpace, 0); // BackSpace not pressed
-			keyboard_handler(sc_Enter, 0); // Enter not pressed
-			keyboard_handler(sc_A, 0); // A not pressed
+			keyboard_handler(sc_Enter, 0);	 // Enter not pressed
+			keyboard_handler(sc_A, 0);		   // A not pressed
 		}
 		else
 		{
@@ -415,7 +422,6 @@ void INL_Update()
 	}
 
 	// handle analog stick
-	/*
 	if (buttons & PSP_CTRL_CIRCLE)
 	{
 		if (pad.Ly < 64 && !mu)
@@ -453,29 +459,26 @@ void INL_Update()
 	}
 	else
 	{
-		//if (abs(pad.Lx-128) > 32)
-			//mx = (pad.Lx-128) >> 1;
-		//else
-			//mx = 0;
-		//if (abs(pad.Ly-128) > 32)
-			//my = (pad.Ly-128) >> 2;
-		//else
-			//my = 0;
+		if (abs(pad.Lx - 128) > 32)
+			mx = (pad.Lx - 128) >> 1;
+		else
+			mx = 0;
+		if (abs(pad.Ly - 128) > 32)
+			my = (pad.Ly - 128) >> 2;
+		else
+			my = 0;
 	}
-	*/
 }
 
-/*
 void IN_GetMouseDelta(int *dx, int *dy)
 {
 	if (dx)
 		*dx = mx;
 	if (dy)
-	  dy = my;
+		*dy = my;
 }
 
 byte IN_MouseButtons()
 {
 	return 0;
 }
-*/

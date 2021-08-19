@@ -24,32 +24,50 @@ OBJS = 	Src/automap.o \
 		Src/wl_menu.o \
 		Src/wl_play.o \
 		Src/wl_state.o \
-		Src/pspDveManager.o \
 
-CFLAGS = -O1 -G0 -Wall -g -DHAVE_FFBLK -DDOSISM
+## version flags
+#WOLF3D_SHAREWARE 0
+#WOLF3D_FULL 1
+#WOLF3D_SOD_SHAREWARE 2
+#WOLF3D_SOD_FULL 3
+
+ifndef VERSION
+    # default to WOLF3D full if no VERSION param is passed when building
+    VERSION=0
+endif
+
+CFLAGS = -O2 -G0 -Wall -g -DHAVE_FFBLK -DDOSISM -DWMODE=$(VERSION)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
-
 LIBDIR =
-LIBS = -L/usr/local/pspdev/lib
+LIBS = -L/usr/local/pspsdk/lib
 LDFLAGS =
-
-BUILD_PRX = 1
+BUILD_PRX = 0
 PSP_FW_VERSION = 401
 PSP_LARGE_MEMORY = 1
-
-CFLAGS += -DWMODE=0
-
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = Wolfenstein 3D
-#PSP_EBOOT_TITLE = Wolfenstein 3D Shareware
-#PSP_EBOOT_TITLE = Spear of Destiny
-#PSP_EBOOT_TITLE = Spear of Destiny Episode 2
-#PSP_EBOOT_TITLE = Spear of Destiny Episode 3
-#PSP_EBOOT_TITLE = Spear of Destiny Shareware
+PSP_EBOOT_ICON= ICON0.png
+PSP_EBOOT_PIC1= PIC1.png
+
+ifeq ($(VERSION), 0)
+	PSP_EBOOT_TITLE = Wolfenstein 3D
+endif
+
+ifeq ($(VERSION), 1)
+	PSP_EBOOT_TITLE = Wolfenstein 3D Shareware
+endif
+
+ifeq ($(VERSION), 2)
+	PSP_EBOOT_TITLE = Spear of Destiny Shareware
+endif
+
+ifeq ($(VERSION), 3)
+	PSP_EBOOT_TITLE = Spear of Destiny
+endif
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 PSPBIN = $(PSPSDK)/../bin
 CFLAGS += $(shell $(PSPBIN)/sdl-config --cflags)
 LIBS += $(shell $(PSPBIN)/sdl-config --libs)
+LIBS += -lstdc++ -lpspirkeyb -lpsppower
 include $(PSPSDK)/lib/build.mak
