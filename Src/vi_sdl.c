@@ -98,6 +98,8 @@ void VL_Startup()
 		Quit("Couldn't init SDL");
 	}
 
+	SDL_ShowCursor(0);
+
 	surface = SDL_SetVideoMode(404, 200, 8, SDL_SWSURFACE | SDL_HWPALETTE | SDL_FULLSCREEN);
 
 	if (surface == NULL)
@@ -106,13 +108,12 @@ void VL_Startup()
 		Quit("Couldn't set 512x320 mode");
 	}
 
-	gfxbuf = surface->pixels + 42;
+	gfxbuf = surface->pixels+40;
 	gfxbuf = (byte *)((int)gfxbuf | 0x40000000);
 	sceKernelDcacheWritebackAll();
 	vstride = surface->pitch;
 
 	if (surface->flags & SDL_FULLSCREEN)
-		SDL_ShowCursor(0);
 
 	SDL_WM_SetCaption(GAMENAME, GAMENAME);
 }
@@ -399,12 +400,9 @@ void INL_Update()
 		else
 		{
 			// SELECT just pressed
-			if (buttons & PSP_CTRL_CIRCLE)
-				keyboard_handler(sc_BackSpace, 1); // BackSpace pressed
-			else if (buttons & PSP_CTRL_SQUARE)
-				keyboard_handler(sc_A, 1); // A pressed
-			else
-				keyboard_handler(sc_Enter, 1); // Enter pressed
+			keyboard_handler(sc_BackSpace, 1); // BackSpace not pressed
+			keyboard_handler(sc_Enter, 1);	 // Enter not pressed
+			keyboard_handler(sc_A, 1);		   // A not pressed
 		}
 	}
 	if (new_buttons & PSP_CTRL_CIRCLE && !StartGame)

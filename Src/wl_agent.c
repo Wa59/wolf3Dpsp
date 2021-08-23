@@ -10,7 +10,7 @@
 
 #define MOVESCALE 150
 #define BACKMOVESCALE 100
-#define ANGLESCALE 20
+#define ANGLESCALE 30
 
 /*
 =============================================================================
