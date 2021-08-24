@@ -105,7 +105,7 @@ void VL_Startup()
 	if (surface == NULL)
 	{
 		SDL_Quit();
-		Quit("Couldn't set 512x320 mode");
+		Quit("Couldn't set mode");
 	}
 
 	gfxbuf = surface->pixels+40;
@@ -162,6 +162,8 @@ void VL_SetPalette(const byte *palette)
 	// Should also do a flip here.
 	SDL_Flip(surface);
 }
+
+
 
 /*
 =================
@@ -390,20 +392,30 @@ void INL_Update()
 	}
 	if (new_buttons & PSP_CTRL_SELECT)
 	{
-		if (!(buttons & PSP_CTRL_SELECT))
-		{
-			// SELECT just released
-			keyboard_handler(sc_BackSpace, 0); // BackSpace not pressed
-			keyboard_handler(sc_Enter, 0);	 // Enter not pressed
-			keyboard_handler(sc_A, 0);		   // A not pressed
+		if (!StartGame) {
+			if (!(buttons & PSP_CTRL_SELECT))
+			{
+				// SELECT just released
+				keyboard_handler(sc_Enter, 0);	 // Enter not pressed
+			}
+			else
+			{
+				// SELECT just pressed
+				keyboard_handler(sc_Enter, 1);	 // Enter not pressed
+			}
+		} else {
+			if (!(buttons & PSP_CTRL_SELECT))
+			{
+				// SELECT just released
+				keyboard_handler(sc_A, 0);		   // A not pressed
+			}
+			else
+			{
+				// SELECT just pressed
+				keyboard_handler(sc_A, 1);		   // A not pressed
+			}
 		}
-		else
-		{
-			// SELECT just pressed
-			keyboard_handler(sc_BackSpace, 1); // BackSpace not pressed
-			keyboard_handler(sc_Enter, 1);	 // Enter not pressed
-			keyboard_handler(sc_A, 1);		   // A not pressed
-		}
+
 	}
 	if (new_buttons & PSP_CTRL_CIRCLE && !StartGame)
 	{
@@ -480,3 +492,28 @@ byte IN_MouseButtons()
 {
 	return 0;
 }
+
+/*
+void FizzleFade (boolean abortable, int frames, int color)
+{
+		VL_WaitVBL(1);
+		int i, j, y, x;
+		SDL_PixelFormat *fmt;
+    SDL_Color colors[256];
+
+    x = 0;
+    y = 0;
+
+		Uint8 *pixels = (Uint8 *)surface->pixels;
+		byte *srcptr = surface;
+
+    for(int i = 0; i < 1000; i++) {
+			byte col = *(srcptr + y * surface->pitch + x);
+			uint32_t fullcol = SDL_MapRGB(surface->format, 255, colors[col].g, colors[col].b);
+	  	memcpy(srcptr + 1 * surface->pitch + 1 * surface->format->BytesPerPixel,
+	      &fullcol, surface->format->BytesPerPixel);
+	  }
+
+		SDL_Flip(surface);
+}
+*/

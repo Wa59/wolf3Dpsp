@@ -15,7 +15,7 @@ cp EBOOT.PBP Wolf_3D/Files/Spear_Of_Destiny_Episode_3_Return_To_Danger/EBOOT.PBP
 cp EBOOT.PBP Wolf_3D/Files/Spear_Of_Destiny_Episode_2_The_Ultimate_Challenge/EBOOT.PBP
 mv EBOOT.PBP Wolf_3D/Files/Spear_Of_Destiny\(F\)/EBOOT.PBP
 
-#./test.sh
+./test.sh
 
 zip -r release.zip Wolf_3D 
 mv release.zip release/release.zip

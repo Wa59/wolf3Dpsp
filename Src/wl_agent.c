@@ -8,9 +8,15 @@
 =============================================================================
 */
 
+/*
 #define MOVESCALE 150
 #define BACKMOVESCALE 100
-#define ANGLESCALE 30
+#define ANGLESCALE 20
+*/
+
+#define MOVESCALE 100
+#define BACKMOVESCALE 90
+#define ANGLESCALE 25
 
 /*
 =============================================================================

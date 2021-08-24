@@ -1302,17 +1302,24 @@ static void AsmRefresh()
 
 /* ======================================================================== */
 
+
+
+
+
+/*
 void FizzleFade(boolean abortable, int frames, int color)
 {
-}
 
-#if 0
-static int xarr[1280];
-static int yarr[1280];
+}
+*/
+
+static int xarr[64000];
+static int yarr[64000];
 
 static int myrand()
 {
-	return rand();
+	//return rand();
+	return 1;
 }
 
 static void fillarray(int *arr, int len)
@@ -1338,67 +1345,23 @@ static void randarray(int *arr, int len)
 
 void FizzleFade(boolean abortable, int frames, int color)
 {
-	boolean retr;
-	int pixperframe;
-	int x, y, xc, yc;
-	int count, p, frame;
+	uint32_t rndval = 1;
+	uint16_t x,y; 
+	do
+	{
+	   y =  rndval & 0x000FF;  /* Y = low 8 bits */
+	   x = (rndval & 0x1FF00) >> 8;  /* X = High 9 bits */
+	   unsigned lsb = rndval & 1;   /* Get the output bit. */
+	   rndval >>= 1;                /* Shift register */
+	   if (lsb) { /* If the output is 0, the xor can be skipped. */
+	      rndval ^= 0x00012000;
+	   }
 
-	count = viewwidth * viewheight;
-	pixperframe = count / frames;
-
-	srand(time(NULL));
-
-	fillarray(xarr, viewwidth);
-	randarray(xarr, viewwidth);
-
-	fillarray(yarr, viewheight - 1);
-	randarray(yarr, viewheight - 1);
-
-	IN_StartAck();
-
-	frame = 0;
-	set_TimeCount(0);
-
-	xc = 0;
-	yc = 0;
-	x = 0;
-	y = 0;
-
-	retr = false;
-	do {
-		if (abortable && IN_CheckAck())
-			retr = true;
-		else
-		for (p = 0; p < pixperframe; p++) {
-
-			gfxbuf[(xarr[x]+xoffset)+(yarr[y]+yoffset)*vstride] = color;
-
-			count--;
-
-			x++;
-			if (x >= viewwidth)
-				x = 0;
-
-			y++;
-			if (y >= (viewheight-1))
-				y = 0;
-
-			yc++;
-			if (yc >= (viewheight-1)) {
-				yc = 0;
-				y++;
-
-				if (y >= (viewheight-1))
-					y = 0;
-			}
+	   if (x < 320 && y < 200 - 40) {
+	   	gfxbuf[x+y*vstride] = color;
+			VW_UpdateScreen();
 		}
-
-		VW_UpdateScreen();
-
-		frame++;
-		while (get_TimeCount() < frame);
-	} while (!retr && (count > 0));
+	} while (rndval != 1);
 
 	VW_UpdateScreen();
 }
-#endif
